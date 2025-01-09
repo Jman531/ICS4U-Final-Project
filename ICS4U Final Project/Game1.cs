@@ -9,6 +9,8 @@ namespace ICS4U_Final_Project
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        Rectangle window;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -19,6 +21,10 @@ namespace ICS4U_Final_Project
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            window = new Rectangle(0, 0, 800, 500);
+            _graphics.PreferredBackBufferWidth = window.Width;
+            _graphics.PreferredBackBufferHeight = window.Height;
+            _graphics.ApplyChanges();
 
             base.Initialize();
         }
