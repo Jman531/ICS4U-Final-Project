@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace ICS4U_Final_Project
 {
@@ -10,6 +11,16 @@ namespace ICS4U_Final_Project
         private SpriteBatch _spriteBatch;
 
         Rectangle window;
+
+        Texture2D shipTexture;
+        Texture2D asteroidTexture;
+
+        SpriteFont menuFont;
+
+        KeyboardState keyboardState;
+
+        Player ship;
+        List<Asteroid> asteroids = new List<Asteroid>();
 
         public Game1()
         {
@@ -27,6 +38,7 @@ namespace ICS4U_Final_Project
             _graphics.ApplyChanges();
 
             base.Initialize();
+            ship = new Player(shipTexture, 350);
         }
 
         protected override void LoadContent()
@@ -34,6 +46,9 @@ namespace ICS4U_Final_Project
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            shipTexture = Content.Load<Texture2D>("rocketship");
+            asteroidTexture = Content.Load<Texture2D>("asteroid");
+            menuFont = Content.Load<SpriteFont>("menu font");
         }
 
         protected override void Update(GameTime gameTime)
@@ -42,6 +57,16 @@ namespace ICS4U_Final_Project
                 Exit();
 
             // TODO: Add your update logic here
+            keyboardState = Keyboard.GetState();
+
+            ship.HSpeed = 0;
+
+            if (keyboardState.IsKeyDown(Keys.D))
+                ship.HSpeed = 3;
+            else if (keyboardState.IsKeyDown(Keys.A))
+                ship.HSpeed = -3;
+
+            ship.Update();
 
             base.Update(gameTime);
         }
@@ -51,6 +76,11 @@ namespace ICS4U_Final_Project
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            _spriteBatch.Begin();
+
+            ship.Draw(_spriteBatch);
+
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }

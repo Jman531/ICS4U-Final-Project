@@ -17,7 +17,7 @@ namespace ICS4U_Final_Project
         public Player(Texture2D texture, int x)
         {
             _texture = texture;
-            _location = new Rectangle(x, 400, 50, 50);
+            _location = new Rectangle(x, 390, 50, 105);
             _speed = new Vector2();
         }
 
@@ -32,7 +32,7 @@ namespace ICS4U_Final_Project
             _location.X += (int)_speed.X;
         }
 
-        private void Update()
+        public void Update()
         {
             Move();
         }
