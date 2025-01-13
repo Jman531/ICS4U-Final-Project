@@ -38,14 +38,9 @@ namespace ICS4U_Final_Project
             set { _speed.Y = value; }
         }
 
-        private void Move()
+        public void Move()
         {
             _rectangle.Y += (int)_speed.Y;
-        }
-
-        public void Update()
-        {
-            Move();
         }
 
         public void Draw(SpriteBatch spriteBatch)
