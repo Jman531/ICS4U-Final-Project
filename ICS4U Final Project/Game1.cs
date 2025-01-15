@@ -23,11 +23,16 @@ namespace ICS4U_Final_Project
         Texture2D shipTexture;
         Texture2D asteroidTexture;
         Texture2D starBackgroundTexture;
+        Texture2D rectangleTexture;
+
+        Rectangle playButton;
+
+        Vector2 backgroundScroll1, backgroundScroll2;
 
         SpriteFont menuFont;
 
         Player ship;
-        List<Asteroid> asteroids = new List<Asteroid>();
+        List<Asteroid> asteroids;
 
         Random generator = new Random();
 
@@ -61,8 +66,15 @@ namespace ICS4U_Final_Project
 
             screen = Screen.Menu;
 
+            playButton = new Rectangle(350, 300, 100, 50);
+
+            backgroundScroll1 = new Vector2(0, 0);
+            backgroundScroll2 = new Vector2(0, 0 - window.Height);
+
             base.Initialize();
             ship = new Player(shipTexture, 350);
+
+            asteroids = new List<Asteroid>();
             asteroids.Add(new Asteroid(asteroidTexture, generator.Next(0, 800 - asteroidSize), asteroidSize));
         }
 
@@ -74,6 +86,7 @@ namespace ICS4U_Final_Project
             shipTexture = Content.Load<Texture2D>("rocketship");
             asteroidTexture = Content.Load<Texture2D>("asteroid");
             starBackgroundTexture = Content.Load<Texture2D>("star_background");
+            rectangleTexture = Content.Load<Texture2D>("rectangle");
             menuFont = Content.Load<SpriteFont>("menu font");
         }
 
@@ -88,7 +101,7 @@ namespace ICS4U_Final_Project
 
             if (screen == Screen.Menu)
             {
-                if (mouseState.LeftButton == ButtonState.Pressed)
+                if (mouseState.LeftButton == ButtonState.Pressed && playButton.Intersects(new Rectangle(mouseState.X, mouseState.Y, 1, 1)))
                 {
                     screen = Screen.Game;
                 }
@@ -99,11 +112,14 @@ namespace ICS4U_Final_Project
                 if (seconds > 0.7)
                 {
                     seconds = 0f;
-                    asteroidSize = generator.Next(25, 100);
-                    asteroids.Add(new Asteroid(asteroidTexture, generator.Next(0, 800 - asteroidSize), asteroidSize));
+                    asteroidSize = generator.Next(20, 100);
+                    asteroids.Add(new Asteroid(asteroidTexture, generator.Next(0, window.Width - asteroidSize), asteroidSize));
                 }
 
                 ship.HSpeed = 0;
+
+                backgroundScroll1.Y += 3;
+                backgroundScroll2.Y += 3;
                 foreach (Asteroid asteroid in asteroids)
                 {
                     asteroid.VSpeed = 3;
@@ -126,11 +142,22 @@ namespace ICS4U_Final_Project
                     }
                 }
 
+                if (backgroundScroll1.Y >= window.Height)
+                {
+                    backgroundScroll1.Y = 0 - window.Height;
+                }
+                if (backgroundScroll2.Y >= window.Height)
+                {
+                    backgroundScroll2.Y = 0 - window.Height;
+                }
+
                 for (int i = 0; i < asteroids.Count; i++)
                 {
                     if (ship.Collide(asteroids[i].Bounds))
                     {
-                        playerHealth -= 1;
+                        playerHealth -= (int)Math.Round((asteroids[i].Bounds.Width / 4.0), 0);
+                        asteroids.Remove(asteroids[i]);
+                        i--;
                     }
                 }
 
@@ -138,6 +165,19 @@ namespace ICS4U_Final_Project
                     screen = Screen.GameOver;
 
                 ship.Update();
+            }
+            else if (screen == Screen.GameOver)
+            {
+                if (mouseState.LeftButton == ButtonState.Pressed && playButton.Intersects(new Rectangle(mouseState.X, mouseState.Y, 1, 1)))
+                {
+                    playerHealth = 100;
+                    ship = new Player(shipTexture, 350);
+
+                    asteroids.Clear();
+                    asteroids.Add(new Asteroid(asteroidTexture, generator.Next(0, 800 - asteroidSize), asteroidSize));
+
+                    screen = Screen.Game;
+                }
             }
 
             base.Update(gameTime);
@@ -153,10 +193,14 @@ namespace ICS4U_Final_Project
             if (screen == Screen.Menu)
             {
                 _spriteBatch.Draw(starBackgroundTexture, new Vector2(0, 0), Color.White);
+                _spriteBatch.Draw(rectangleTexture, playButton, Color.Gray);
+                _spriteBatch.DrawString(menuFont, "Play", new Vector2(372, 306), Color.White);
                 _spriteBatch.DrawString(menuFont, "Spaceship Game", new Vector2(260, 100), Color.White);
             }
             else if (screen == Screen.Game)
             {
+                _spriteBatch.Draw(starBackgroundTexture, backgroundScroll1, Color.White);
+                _spriteBatch.Draw(starBackgroundTexture, backgroundScroll2, Color.White);
                 ship.Draw(_spriteBatch);
                 foreach (Asteroid asteroid in asteroids)
                     asteroid.Draw(_spriteBatch);
@@ -164,7 +208,10 @@ namespace ICS4U_Final_Project
             }
             else if (screen == Screen.GameOver)
             {
-                _spriteBatch.DrawString(menuFont, "Game Over!", new Vector2(260, 100), Color.White);
+                _spriteBatch.Draw(starBackgroundTexture, new Vector2(0, 0), Color.White);
+                _spriteBatch.Draw(rectangleTexture, playButton, Color.Gray);
+                _spriteBatch.DrawString(menuFont, "Retry", new Vector2(363, 306), Color.White);
+                _spriteBatch.DrawString(menuFont, "Game Over!", new Vector2(300, 100), Color.White);
             }
 
             _spriteBatch.End();
